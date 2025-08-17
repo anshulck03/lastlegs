@@ -1,221 +1,125 @@
-# Last Legs — AI Ironman Coach Landing Page
+## Last Legs — AI Ironman Coach
 
-A production-grade landing page for "Last Legs", an AI-powered Ironman training coach. Built with Next.js 14+, TypeScript, Tailwind CSS, and Framer Motion.
+Modern web experience for Last Legs, an AI-powered Ironman training coach.
+Built with Next.js 14 (App Router), TypeScript, Tailwind CSS, and Framer Motion. Deployed on Vercel.
 
-## 🎨 Design Philosophy
+Live: https://lastlegs.app (after DNS propagation)
 
-- **Photon-inspired**: Premium, dark, minimal aesthetic with soft motion
-- **Elite athletic club**: Black/gray/white base with subtle violet/blue accents
-- **Authentic**: No testimonials, partner logos, or vanity counters
-- **Performance-first**: Optimized for speed, accessibility, and responsive behavior
+What’s in v0 (now)
 
-## 🛠 Tech Stack
+Hero + CTA: “Join the first wave” waitlist (Formspree via server proxy)
 
-- **Framework**: Next.js 14+ (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Animations**: Framer Motion
-- **Icons**: Inline SVGs (monochrome line style)
+Race Finder (Phase 1): 6–8 curated Full + 70.3 races, pill status badges (Open / Closed / Waitlist), auto-glide carousel, deep links to official race pages
 
-## 🚀 Getting Started
+Dashboard Preview: Tabs (Home / Plan / Progress) with simple state + animated metrics
 
-### Prerequisites
+Sticky header + mini-nav with smooth scroll
 
-- Node.js 18+ 
-- npm or yarn
+Performance & A11y: lazy loading, strong contrast, keyboard nav, focus-visible rings
 
-### Installation
+Coming Soon (what to expect)
+Phase 1.5 — Polish
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
+Success/thank-you route after join
+
+Inline email validation + friendlier error states
+
+Carousel accessibility & mobile tweaks
+
+Copy pass across Hero/FAQ/Guarantee
+
+Phase 2 — Waitlist “Waves”
+
+Tokenized wave invites (limited cohorts)
+
+Auto-confirm email + “Manage preferences” link
+
+Segmented emails (race picks, experience level)
+
+Lightweight admin CSV export
+
+Phase 3 — App Foundations (MVP)
+
+Auth (passwordless email)
+
+Profile: goal race, target finish, training availability
+
+Basic plan preview + weekly blocks
+
+Progress logging (RPE, distance, time)
+
+Phase 4 — Adaptive Coaching
+
+Dynamic plan adjustments from compliance
+
+Device sync (Strava/Garmin) and alerts
+
+Race-week taper and checklist
+
+Billing (Stripe) for Pro tiers
+
+Tech Stack
+
+Framework: Next.js 14+ (App Router)
+
+Lang: TypeScript
+
+Style: Tailwind CSS
+
+Animation: Framer Motion
+
+Forms: Formspree (proxied through Next API route)
+
+Deploy: Vercel
+
+Local Development
+Prereqs
+
+Node.js 18+
+
+npm (or pnpm/bun)
+
+Setup
+git clone https://github.com/anshulck03/lastlegs.git
 cd lastlegs
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
 
-3. Run the development server:
-```bash
-npm run dev
-```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Create .env.local in the project root:
 
-### Build for Production
+# Client submits here; server proxies to Formspree
+NEXT_PUBLIC_WAITLIST_PATH=/api/waitlist
 
-```bash
+# Upstream Formspree endpoint
+FORMSPREE_FORM_ENDPOINT=https://formspree.io/f/mkgzaoqj
+
+
+Run:
+
+npm run dev      # http://localhost:3000
 npm run build
-npm start
-```
+npm start        # serve production build locally
 
-## 📁 Project Structure
+Deploy (Vercel)
 
-```
-/
-├── app/
-│   ├── layout.tsx          # Root layout with metadata
-│   ├── page.tsx            # Main page component
-│   └── globals.css         # Global styles and theme tokens
-├── components/
-│   ├── ui/                 # Reusable UI primitives
-│   │   ├── Container.tsx
-│   │   ├── Section.tsx
-│   │   ├── HoverCard.tsx
-│   │   └── GridOverlay.tsx
-│   ├── motion/             # Framer Motion variants
-│   │   └── variants.ts
-│   ├── Header.tsx          # Navigation header
-│   ├── Hero.tsx            # Hero section with CTA
-│   ├── ValueCards.tsx      # Feature cards
-│   ├── HowItWorks.tsx      # 4-step timeline
-│   ├── DashboardPreview.tsx # Interactive dashboard mockup
-│   ├── RaceFinder.tsx      # Horizontal race carousel
-│   ├── Guarantee.tsx       # Finish-line guarantee
-│   ├── FAQ.tsx             # Accordion FAQ
-│   └── Footer.tsx          # Site footer
-├── public/
-│   └── favicon.svg         # Brand favicon
-└── Configuration files...
-```
+Connect the GitHub repo to Vercel (Project → Deploy)
 
-## 🎨 Design System
+Add the same .env vars in Project → Settings → Environment Variables
 
-### Color Palette
+Set Build Command: npm run build
 
-```css
---bg-0: #000000    /* Page background */
---bg-1: #0B0B0B    /* Section panels */
---bg-2: #121212    /* Cards/surfaces */
---line: #1E1E1E    /* Hairline borders/grid */
---text-1: #FFFFFF  /* Headings */
---text-2: #D1D1D1  /* Body text */
---text-3: #A0A0A0  /* Meta text */
---acc-violet: #7A3FFF  /* Primary CTA */
---acc-blue: #00E5FF    /* Micro highlights/focus */
-```
+Each push to main auto-deploys
 
-### Typography
+Project Structure
+app/                # App Router pages & API routes
+  api/waitlist/     # POST proxy to Formspree
+components/         # UI, sections, motion variants
+public/             # static assets
+tailwind.config.ts  # design tokens & theme
 
-- **Display/H1**: `clamp(48px, 7vw, 72px)` - Font weight 800
-- **H2**: `clamp(28px, 4vw, 42px)` - Font weight 700
-- **Body**: 16-18px (never below 16px)
-- **Meta/overline**: 12-13px uppercase with letter-spacing
+License & Contributing
 
-### Motion
+Proprietary — © Last Legs. All rights reserved.
+Private repo; contact the team for contribution access.
 
-- **Easing**: `[0.22, 0.61, 0.36, 1]` (cubic-bezier)
-- **Stagger**: 0.10-0.12s between items
-- **Duration**: 0.6-0.7s for main animations
-- **Reduced motion**: Respects `prefers-reduced-motion`
-
-## ♿ Accessibility
-
-- Minimum contrast ratio: 4.5:1
-- Body text: ≥16px
-- Focus-visible rings using `--acc-blue`
-- Keyboard navigation support
-- Screen reader friendly
-- ARIA labels and roles
-
-## 📱 Responsive Design
-
-- Mobile-first approach
-- Breakpoints: `sm:`, `md:`, `lg:`, `xl:`
-- Flexible grid systems
-- Touch-friendly interactions
-- Optimized for all screen sizes
-
-## 🎯 Key Features
-
-### Hero Section
-- Staggered animations
-- Device mockup with interactive elements
-- Background grid overlay with subtle motion
-
-### Value Cards
-- Three core feature cards
-- Hover effects with lift and glow
-- Inline SVG icons
-
-### How It Works
-- 4-step horizontal timeline
-- Interactive circle markers
-- Responsive stacking on mobile
-
-### Dashboard Preview
-- Tabbed interface (Home, Plan, Progress)
-- Animated progress indicators
-- Compliance tracking visualization
-
-### Race Finder
-- Horizontal scrollable carousel
-- Edge gradient masks
-- Snap scrolling behavior
-
-### Finish-Line Guarantee
-- Exact copy as specified
-- Feature bullet points
-- Legal disclaimer
-
-### FAQ
-- Accordion functionality
-- Keyboard accessible
-- Smooth expand/collapse animations
-
-## 🔧 Customization
-
-### Theme Colors
-Modify CSS variables in `app/globals.css`:
-
-```css
-:root {
-  --acc-violet: #7A3FFF;  /* Primary brand color */
-  --acc-blue: #00E5FF;    /* Secondary accent */
-  /* ... other colors */
-}
-```
-
-### Content
-Update content in respective component files:
-- Hero copy: `components/Hero.tsx`
-- Feature descriptions: `components/ValueCards.tsx`
-- FAQ items: `components/FAQ.tsx`
-- Race data: `components/RaceFinder.tsx`
-
-### Animations
-Modify motion variants in `components/motion/variants.ts`
-
-## 📊 Performance
-
-- Lighthouse optimized
-- Lazy loading for heavy assets
-- Optimized bundle size
-- Efficient animations
-- Minimal layout shifts
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Connect your repository to Vercel
-2. Deploy automatically on push to main branch
-
-### Other Platforms
-```bash
-npm run build
-# Deploy the .next folder to your hosting platform
-```
-
-## 📄 License
-
-This project is proprietary to Last Legs. All rights reserved.
-
-## 🤝 Contributing
-
-This is a private project. Please contact the development team for contribution guidelines.
-
----
-
-Built with ❤️ for Ironman athletes everywhere.
+Built for athletes who love red-line days. 🏁
