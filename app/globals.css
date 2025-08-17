@@ -1,0 +1,383 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+#root,
+#__next {
+  isolation: isolate;
+}
+
+/* Theme Variables */
+:root {
+  --bg-0: #000000;  /* page background */
+  --bg-1: #0B0B0B;  /* section panels */
+  --bg-2: #121212;  /* cards/surfaces */
+  --line: #1E1E1E;  /* hairline borders/grid */
+  --text-1: #FFFFFF;/* headings */
+  --text-2: #D1D1D1;/* body */
+  --text-3: #A0A0A0;/* meta */
+  --crimson: #DC143C;         /* primary accent */
+  --crimson-glow: rgba(220,20,60,.35);
+  --grid-fg: rgba(255,255,255,.07);
+  --grid-fg-2: rgba(255,255,255,.04);
+}
+
+/* Base Typography */
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+/* Typography Scale */
+.display {
+  font-size: clamp(48px, 7vw, 72px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--text-1);
+}
+
+h1 {
+  font-size: clamp(48px, 7vw, 72px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--text-1);
+}
+
+h2 {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-1);
+}
+
+h3 {
+  font-size: clamp(20px, 2.5vw, 24px);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-1);
+}
+
+p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+
+.overline {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+}
+
+/* Utility Classes */
+.card {
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+  box-shadow: 0 8px 40px rgba(0,0,0,.6);
+  backdrop-filter: blur(6px);
+}
+
+.btn-primary {
+  border-radius: 20px;
+  padding: 12px 28px;
+  font-weight: 600;
+  color: #0B0B0B;
+  background: var(--crimson);
+  box-shadow: 0 0 24px var(--crimson-glow);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: #B01030;
+  transform: scale(1.02);
+  box-shadow: 0 0 32px var(--crimson-glow);
+}
+
+.btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--crimson);
+}
+
+.btn-secondary {
+  border-radius: 20px;
+  padding: 12px 28px;
+  border: 1px solid var(--line);
+  color: var(--text-1);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-secondary:hover {
+  border-color: var(--crimson);
+  box-shadow: 0 0 24px var(--crimson-glow);
+}
+
+.grid-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.30;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 23px, var(--line) 24px),
+    repeating-linear-gradient(90deg, transparent, transparent 23px, var(--line) 24px);
+}
+
+/* Selection & Links */
+::selection {
+  background: var(--crimson);
+  color: #0B0B0B;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a.link-underline {
+  position: relative;
+}
+
+a.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: var(--crimson);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+
+a.link-underline:hover::after {
+  transform: scaleX(1);
+}
+
+/* Focus Styles */
+*:focus-visible {
+  outline: 2px solid var(--crimson);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Scrollbar Hiding */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Analytic Background */
+.bg-analytic {
+  background: var(--bg-0);
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-analytic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 23px, var(--grid-fg) 24px),
+    repeating-linear-gradient(90deg, transparent, transparent 23px, var(--grid-fg) 24px),
+    repeating-linear-gradient(0deg, transparent, transparent 95px, var(--grid-fg-2) 96px),
+    repeating-linear-gradient(90deg, transparent, transparent 95px, var(--grid-fg-2) 96px);
+  pointer-events: none;
+  animation: grid-drift 30s linear infinite alternate;
+}
+
+.bg-analytic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+  pointer-events: none;
+}
+
+/* Radar Sweep Pulse */
+.bg-analytic .radar-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: conic-gradient(from 0deg, transparent 0deg, var(--crimson-glow) 10deg, transparent 20deg);
+  opacity: 0;
+  pointer-events: none;
+  animation: radar-sweep 4s ease-in-out infinite;
+}
+
+/* Crimson Nodes */
+.crimson-node {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--crimson);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--crimson-glow);
+  pointer-events: none;
+  animation: node-blink 3s ease-in-out infinite;
+}
+
+.crimson-node:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; }
+.crimson-node:nth-child(2) { top: 35%; right: 25%; animation-delay: 1s; }
+.crimson-node:nth-child(3) { bottom: 30%; left: 30%; animation-delay: 2s; }
+.crimson-node:nth-child(4) { bottom: 15%; right: 15%; animation-delay: 0.5s; }
+.crimson-node:nth-child(5) { top: 60%; left: 10%; animation-delay: 1.5s; }
+
+@keyframes grid-drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(8px, 12px);
+  }
+}
+
+@keyframes radar-sweep {
+  0%, 100% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  50% {
+    opacity: 0.3;
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes node-blink {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .bg-analytic::before {
+    animation: none;
+  }
+  .bg-analytic .radar-sweep {
+    animation: none;
+  }
+  .crimson-node {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  /* Reduce grid density on mobile */
+  .bg-analytic::before {
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 47px, var(--line) 48px),
+      repeating-linear-gradient(90deg, transparent, transparent 47px, var(--line) 48px),
+      repeating-linear-gradient(0deg, transparent, transparent 191px, var(--grid-fg-2) 192px),
+      repeating-linear-gradient(90deg, transparent, transparent 191px, var(--grid-fg-2) 192px);
+  }
+  
+  /* Hide some crimson nodes on mobile */
+  .crimson-node:nth-child(3),
+  .crimson-node:nth-child(5) {
+    display: none;
+  }
+  
+  /* Improve touch targets */
+  .btn-primary,
+  .btn-secondary {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+  
+  /* Reduce card shadows on mobile */
+  .card {
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  }
+}
