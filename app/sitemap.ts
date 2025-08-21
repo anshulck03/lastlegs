@@ -1,5 +1,7 @@
+import { publicEnv } from "../lib/env";
+
 export default function sitemap() {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://last-legs.vercel.app";
+  const base = publicEnv.NEXT_PUBLIC_SITE_URL;
   const lastModified = new Date();
 
   const paths = [

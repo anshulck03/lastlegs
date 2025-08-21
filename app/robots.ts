@@ -1,6 +1,8 @@
+import { publicEnv } from "../lib/env";
+
 export default function robots() {
   const isProd = process.env.VERCEL_ENV === "production";
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://last-legs.vercel.app";
+  const base = publicEnv.NEXT_PUBLIC_SITE_URL;
 
   if (!isProd) {
     return { rules: [{ userAgent: "*", disallow: ["/"] }] };

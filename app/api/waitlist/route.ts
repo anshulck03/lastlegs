@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { env } from "../../../lib/env";
 
-const endpoint = process.env.FORMSPREE_ENDPOINT;
+const endpoint = env.FORMSPREE_ENDPOINT;
 
 function isEmail(v: string) {
   // light validation; let Formspree do deeper checks

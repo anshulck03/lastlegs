@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import * as cheerio from 'cheerio'
 import { parse, format, addDays, isAfter, isBefore } from 'date-fns'
 import { toZonedTime } from 'date-fns-tz'
+import { z } from 'zod'
 
 // Types
 type RaceStatus = "Open" | "Closed" | "Waitlist" | "Sold Out" | "Registration Soon" | "Unknown";
@@ -33,6 +34,12 @@ declare global {
 }
 
 const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+
+// Input validation schema
+const QuerySchema = z.object({
+  distance: z.enum(["HALF", "FULL"]).optional(),
+  limit: z.coerce.number().min(1).max(12).default(12)
+});
 
 // Helper functions
 function parseDateText(dateText: string): string | null {
@@ -200,20 +207,56 @@ async function scrapeRaces(): Promise<Race[]> {
     .slice(0, 12);
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    // Validate query parameters
+    const url = new URL(req.url);
+    const parseResult = QuerySchema.safeParse({
+      distance: url.searchParams.get("distance") ?? undefined,
+      limit: url.searchParams.get("limit") ?? undefined
+    });
+
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { error: "BAD_INPUT", issues: parseResult.error.flatten() },
+        { status: 400 }
+      );
+    }
+
+    const { distance, limit } = parseResult.data;
     // Check cache
     const now = Date.now();
     if (globalThis.__racesCache && (now - globalThis.__racesCache.fetchedAt) < CACHE_DURATION) {
+      let cachedRaces = globalThis.__racesCache.data;
+      
+      // Apply distance filter if specified
+      if (distance) {
+        const filterDistance = distance === "HALF" ? "70.3" : "Full";
+        cachedRaces = cachedRaces.filter(race => race.distance === filterDistance);
+      }
+      
+      // Apply limit
+      cachedRaces = cachedRaces.slice(0, limit);
+
       return NextResponse.json({
         fallback: false,
-        count: globalThis.__racesCache.data.length,
-        items: globalThis.__racesCache.data
+        count: cachedRaces.length,
+        items: cachedRaces
       });
     }
 
     // Fetch fresh data
     const races = await scrapeRaces();
+    
+    // Apply distance filter if specified
+    let filteredRaces = races;
+    if (distance) {
+      const filterDistance = distance === "HALF" ? "70.3" : "Full";
+      filteredRaces = races.filter(race => race.distance === filterDistance);
+    }
+    
+    // Apply limit
+    const limitedRaces = filteredRaces.slice(0, limit);
     
     // If scraping failed, return fallback data
     if (races.length === 0) {
@@ -287,7 +330,7 @@ export async function GET() {
       });
     }
     
-    // Update cache with scraped data
+    // Update cache with scraped data (store full data, not filtered)
     globalThis.__racesCache = {
       data: races,
       fetchedAt: now
@@ -295,12 +338,25 @@ export async function GET() {
 
     return NextResponse.json({
       fallback: false,
-      count: races.length,
-      items: races
+      count: limitedRaces.length,
+      items: limitedRaces
     });
 
   } catch (error) {
     console.error('Error fetching races:', error);
+    
+    // Check if this is a database connectivity issue
+    if (error instanceof Error && (
+      error.message.includes('ECONNREFUSED') ||
+      error.message.includes('database') ||
+      error.message.includes('prisma') ||
+      error.message.includes('connection')
+    )) {
+      return NextResponse.json(
+        { error: "DB_UNAVAILABLE", message: "Database temporarily unavailable" },
+        { status: 503 }
+      );
+    }
     
     // Return fallback data on error
     const fallbackRaces: Race[] = [
@@ -364,6 +420,6 @@ export async function GET() {
       fallback: true,
       count: fallbackRaces.length,
       items: fallbackRaces
-    });
+    }, { status: 503 });
   }
 }

@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import './globals.css'
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://last-legs.vercel.app";
+import { publicEnv } from "../lib/env";
+
+const SITE_URL = publicEnv.NEXT_PUBLIC_SITE_URL;
 
 export const metadata: Metadata = {
   title: "Last Legs — AI Ironman Training",
