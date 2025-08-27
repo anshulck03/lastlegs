@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Enums
+enum Distance {
+  HALF  // 70.3
+  FULL  // 140.6
+}
+
+enum FitnessLevel {
+  NEW_TO_ENDURANCE
+  ACTIVE_NON_ENDURANCE
+  SOME_ENDURANCE
+  EXPERIENCED
+  COMPETITIVE
+}
+
+enum StrengthPriority {
+  ENDURANCE_PRIORITY
+  BALANCED
+  STRENGTH_PRIORITY
+}
+
+enum RaceStatus {
+  OPEN
+  CLOSED
+  WAITLIST
+}
+
+// Models
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile       Profile?
+  raceSelection RaceSelection?
+
+  @@map("users")
+}
+
+model Profile {
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  age               Int?
+  distancePreference Distance?
+  fitnessLevel      FitnessLevel?
+  weeklyHours       Int?
+  facilities        Json?             // { pool?: boolean, gym?: boolean, treadmill?: boolean, trainer?: boolean }
+  constraints       String?
+  availability      Json?             // flexible JSON for future availability preferences
+  strengthPriority  StrengthPriority? // new field as required
+  completedAt       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Race {
+  id          String     @id @default(cuid())
+  name        String
+  location    String
+  date        DateTime
+  distance    Distance
+  status      RaceStatus @default(OPEN)
+  registrationUrl String?
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  raceSelections RaceSelection[]
+
+  @@map("races")
+}
+
+model RaceSelection {
+  id      String @id @default(cuid())
+  userId  String @unique
+  raceId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  race Race @relation(fields: [raceId], references: [id], onDelete: Cascade)
+
+  @@map("race_selections")
+}
+
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  @@map("waitlist_entries")
+}
