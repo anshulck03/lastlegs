@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum SessionStatus {
+  DONE
+  SKIPPED
+  PARTIAL
+}
+
+// Models
+model Race {
+  id        String   @id @default(cuid())
+  name      String
+  city      String?
+  country   String?
+  date      DateTime
+  distance  String   // 'HALF' | 'FULL'
+  status    String?  // 'OPEN' | 'WAITLIST' | 'CLOSED' | null
+  url       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, date], name: "race_name_date_unique")
+}
+
+model Profile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  age                Int
+  distancePreference String   // 'HALF' | 'FULL'
+  fitnessLevel       String
+  strengthPriority   String
+  gender             String?
+  sportsBackground   Json?
+  constraints        String?
+  availability       Json?
+  facilities         Json?
+  coachTone          String?
+  runPaceMinPerMi    Float?
+  bikeMph            Float?
+  swimSecPer100m     Float?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model SessionLog {
+  id         String         @id @default(cuid())
+  userId     String
+  planHash   String
+  weekIndex  Int
+  sessionKey String
+  date       DateTime
+  sport      String
+  plannedMin Int
+  actualMin  Int?
+  status     SessionStatus
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([userId, planHash, sessionKey])
+}

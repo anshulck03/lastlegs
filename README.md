@@ -123,3 +123,49 @@ Proprietary — © Last Legs. All rights reserved.
 Private repo; contact the team for contribution access.
 
 Built for athletes who love red-line days. 🏁
+
+## Development Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create `.env` from example:
+
+```bash
+cp .env.local.example .env
+```
+
+3. Run Prisma migrations and seed:
+
+```bash
+npx prisma migrate dev
+```
+
+4. Start the dev server:
+
+```bash
+npm run dev
+```
+
+## Race Admin Sync
+
+To fetch fresh races into the local DB:
+
+```bash
+curl -X POST http://localhost:3000/api/admin/sync-races
+```
+
+If deploying to production, provide `x-admin-secret` header matching `ADMIN_SYNC_SECRET`.
+
+## Testing
+
+```bash
+npm run test
+```
+
+## Accessibility
+
+We include basic a11y practices and eslint a11y rules; run `npm run lint` to check.
