@@ -256,6 +256,16 @@ export default function DashboardPreview() {
                       </div>
                     </div>
 
+                    {/* Export Button */}
+                    <div>
+                      <a
+                        href="/api/ics/week"
+                        className="inline-block px-4 py-2 border border-[var(--line)] rounded-xl text-[var(--text-1)] hover:bg-[var(--crimson)] hover:text-[var(--bg-0)] hover:border-[var(--crimson)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--crimson)]"
+                      >
+                        Export This Week (.ics)
+                      </a>
+                    </div>
+
                     {/* Weekly Summary */}
                     <div className="grid md:grid-cols-3 gap-4">
                       <div className="text-center p-4 bg-[var(--bg-1)] rounded-lg">
