@@ -16,10 +16,7 @@ type ApiRace = {
   status: 'Open' | 'Closed' | 'Waitlist' | 'Sold Out' | 'Registration Soon' | 'Unknown'
 }
 
-type CacheEntry = {
-  data: Race[];
-  fetchedAt: number;
-};
+// no cache; results are DB-backed
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
