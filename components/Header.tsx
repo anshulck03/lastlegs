@@ -67,6 +67,18 @@ export default function Header() {
                 {item.label}
               </button>
             ))}
+            <a href="/app/settings" className="text-[var(--text-2)] hover:text-[var(--text-1)]">Settings</a>
+            <button
+              onClick={async () => {
+                try {
+                  await fetch('/api/dev/logout', { method: 'POST' })
+                  window.location.replace('/')
+                } catch {}
+              }}
+              className="text-[var(--text-2)] hover:text-[var(--text-1)]"
+            >
+              Log out
+            </button>
             <a
               href="#waitlist"
               className="btn-primary"
