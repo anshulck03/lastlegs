@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
-import { addMonths, parseISO, isAfter } from 'date-fns'
+import { addMonths } from 'date-fns'
+import { computeShortRunway } from '@/lib/races/utils'
 
 const prisma = new PrismaClient()
 
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
     take: limit,
   })
 
-  const items: ApiRace[] = races
+  const items: (ApiRace & { shortRunway: boolean })[] = races
     .filter((r) => !finalsRegex.test(r.name))
     .map((r) => ({
       name: r.name,
@@ -69,6 +70,7 @@ export async function GET(request: Request) {
           : r.status === 'CLOSED'
           ? 'Closed'
           : 'Unknown',
+      shortRunway: computeShortRunway(r.date.toISOString().slice(0, 10)),
     }))
 
   // Compute shortRunway flag compatibility: add derived only in frontend if needed
