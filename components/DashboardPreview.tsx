@@ -15,6 +15,9 @@ const tabs = [
 
 export default function DashboardPreview() {
   const [activeTab, setActiveTab] = useState('home')
+  const [compliancePct, setCompliancePct] = useState<number | null>(null)
+  const [streakWeeks, setStreakWeeks] = useState<number | null>(null)
+  const [statusByDay, setStatusByDay] = useState<Record<number, 'NONE' | 'DONE' | 'PARTIAL' | 'SKIPPED'>>({})
 
   // Keyboard navigation for tabs
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -43,6 +46,86 @@ export default function DashboardPreview() {
     
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [])
+
+  // --- Compliance helpers (demo wiring) ---
+  const planHash = 'demo-plan'
+  const getMonday = (d = new Date()) => {
+    const day = d.getDay()
+    const diff = (day === 0 ? -6 : 1) - day
+    const monday = new Date(d)
+    monday.setHours(0, 0, 0, 0)
+    monday.setDate(d.getDate() + diff)
+    return monday
+  }
+  const getWeekIndex = (date = new Date()) => {
+    const monday = getMonday(date)
+    const epochMonday = new Date(1970, 0, 5)
+    return Math.floor((monday.getTime() - epochMonday.getTime()) / (7 * 24 * 60 * 60 * 1000))
+  }
+  const weekIndex = getWeekIndex()
+  const mondayISO = getMonday().toISOString().slice(0, 10)
+  const dayISO = (offset: number) => {
+    const d = new Date(getMonday())
+    d.setDate(d.getDate() + offset)
+    return d.toISOString().slice(0, 10)
+  }
+  const sportForIndex = (i: number) => (i % 3 === 0 ? 'SWIM' : i % 3 === 1 ? 'BIKE' : 'RUN')
+
+  const fetchCompliance = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/session-log?planHash=${encodeURIComponent(planHash)}&weekIndex=${weekIndex}`)
+      if (!res.ok) return
+      const j = await res.json()
+      setCompliancePct(j.compliancePct)
+      // naive streak: look back until <80%
+      let streak = 0
+      for (let i = 0; i < 12; i++) {
+        const r = await fetch(`/api/session-log?planHash=${encodeURIComponent(planHash)}&weekIndex=${weekIndex - i}`)
+        if (!r.ok) break
+        const js = await r.json()
+        if ((js.compliancePct || 0) >= 80) streak += 1
+        else break
+      }
+      setStreakWeeks(streak)
+      // telemetry placeholders
+      // console.log('compliance_updated', { planHash, weekIndex, pct: j.compliancePct })
+    } catch {}
+  }, [planHash, weekIndex])
+
+  useEffect(() => {
+    fetchCompliance()
+  }, [fetchCompliance])
+
+  const cycleStatus = (current: 'NONE' | 'DONE' | 'PARTIAL' | 'SKIPPED'): 'NONE' | 'DONE' | 'PARTIAL' | 'SKIPPED' => {
+    if (current === 'NONE') return 'DONE'
+    if (current === 'DONE') return 'PARTIAL'
+    if (current === 'PARTIAL') return 'SKIPPED'
+    return 'NONE'
+  }
+
+  const markSession = async (dayIdx: number) => {
+    const current = statusByDay[dayIdx] || 'NONE'
+    const next = cycleStatus(current)
+    setStatusByDay((s) => ({ ...s, [dayIdx]: next }))
+
+    const dateISO = dayISO(dayIdx)
+    const sessionKey = `${dateISO}:${sportForIndex(dayIdx)}:Day${dayIdx}`
+    const payload = {
+      planHash,
+      weekIndex,
+      sessionKey,
+      dateISO,
+      sport: sportForIndex(dayIdx),
+      plannedMin: 60,
+      actualMin: next === 'DONE' ? 60 : next === 'PARTIAL' ? 30 : 0,
+      status: next === 'NONE' ? 'SKIPPED' : next,
+    }
+    try {
+      await fetch('/api/session-log', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      fetchCompliance()
+      // console.log('session_marked', payload)
+    } catch {}
+  }
 
   return (
     <Section id="dashboard" className="py-20 lg:py-32">
@@ -187,11 +270,11 @@ export default function DashboardPreview() {
                               />
                             </svg>
                             <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="text-sm font-bold text-[var(--text-1)]">85%</span>
+                              <span className="text-sm font-bold text-[var(--text-1)]">{compliancePct ?? 85}%</span>
                             </div>
                           </div>
                           <div>
-                            <div className="text-sm text-[var(--text-2)]">Completed 17 of 20 sessions</div>
+                            <div className="text-sm text-[var(--text-2)]">Weekly compliance</div>
                           </div>
                         </div>
                       </div>
@@ -200,10 +283,10 @@ export default function DashboardPreview() {
                         <div className="text-sm text-[var(--text-3)]">Current Streak</div>
                         <div className="flex items-center space-x-3">
                           <div className="w-12 h-12 bg-[var(--crimson)] rounded-full flex items-center justify-center">
-                            <span className="text-lg font-bold text-[var(--bg-0)]">7</span>
+                            <span className="text-lg font-bold text-[var(--bg-0)]">{streakWeeks ?? 0}</span>
                           </div>
                           <div>
-                            <div className="text-lg font-bold text-[var(--text-1)]">7 days</div>
+                            <div className="text-lg font-bold text-[var(--text-1)]">{streakWeeks ?? 0} weeks</div>
                             <div className="text-sm text-[var(--text-2)]">Keep it going!</div>
                           </div>
                         </div>
@@ -250,16 +333,36 @@ export default function DashboardPreview() {
                                   Run
                                 </div>
                               )}
+                              <div className="mt-2">
+                                <button
+                                  onClick={() => markSession(index)}
+                                  className="w-full text-xs border border-[var(--line)] rounded px-2 py-1 hover:bg-[var(--crimson)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--crimson)]"
+                                  aria-pressed={statusByDay[index] !== 'NONE'}
+                                  aria-label={`Mark ${day} session status`}
+                                >
+                                  {statusByDay[index] || 'NONE'}
+                                </button>
+                              </div>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
 
+                    {/* Export Button */}
+                    <div>
+                      <a
+                        href="/api/ics/week"
+                        className="inline-block px-4 py-2 border border-[var(--line)] rounded-xl text-[var(--text-1)] hover:bg-[var(--crimson)] hover:text-[var(--bg-0)] hover:border-[var(--crimson)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--crimson)]"
+                      >
+                        Export This Week (.ics)
+                      </a>
+                    </div>
+
                     {/* Weekly Summary */}
                     <div className="grid md:grid-cols-3 gap-4">
                       <div className="text-center p-4 bg-[var(--bg-1)] rounded-lg">
-                        <div className="text-lg font-bold text-[var(--text-1)]">5</div>
+                        <div className="text-lg font-bold text-[var(--text-1)]">{compliancePct ?? 0}%</div>
                         <div className="text-xs text-[var(--text-3)]">Sessions</div>
                       </div>
                       <div className="text-center p-4 bg-[var(--bg-1)] rounded-lg">

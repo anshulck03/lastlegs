@@ -34,8 +34,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="bg-[color:var(--bg-0)] text-[color:var(--text-2)]">
       <body className="font-sans antialiased">
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:bg-white focus:text-black focus:px-3 focus:py-2 focus:rounded">
+          Skip to content
+        </a>
         <div className="relative">
-          {children}
+          <main id="main">
+            {children}
+          </main>
         </div>
         <Analytics />
       </body>
